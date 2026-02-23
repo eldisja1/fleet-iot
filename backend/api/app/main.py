@@ -1,11 +1,36 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
+
 from app.routers import devices_router, telemetry_router
 
-app = FastAPI(title="Fleet IoT Enterprise API")
 
-@app.get("/health")
+app = FastAPI(
+    title="Fleet IoT Enterprise API",
+    version="2.0.0",
+    description="Enterprise Fleet IoT API with validation and schema enforcement"
+)
+
+
+# ==============================
+# Health Schema
+# ==============================
+
+class HealthResponse(BaseModel):
+    status: str
+
+
+# ==============================
+# Health Endpoint
+# ==============================
+
+@app.get("/health", response_model=HealthResponse, tags=["System"])
 def health():
     return {"status": "ok"}
 
-app.include_router(devices_router)
-app.include_router(telemetry_router)
+
+# ==============================
+# Routers
+# ==============================
+
+app.include_router(devices_router, tags=["Devices"])
+app.include_router(telemetry_router, tags=["Telemetry"])

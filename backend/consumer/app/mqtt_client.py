@@ -4,10 +4,12 @@ import uuid
 
 import paho.mqtt.client as mqtt
 from sqlalchemy.exc import SQLAlchemyError
+from pydantic import ValidationError
 
 from .config import MQTT_BROKER, MQTT_PORT, MQTT_SUBSCRIBE_TOPIC
 from .database import SessionLocal
 from .models import Telemetry, Device
+from .schemas import TelemetryMQTT
 
 
 logging.basicConfig(
@@ -23,10 +25,8 @@ logging.basicConfig(
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         logging.info("Connected to MQTT Broker")
-
         client.subscribe(MQTT_SUBSCRIBE_TOPIC)
         logging.info(f"Subscribed to topic: {MQTT_SUBSCRIBE_TOPIC}")
-
     else:
         logging.error(f"Failed to connect, return code {rc}")
 
@@ -37,15 +37,43 @@ def on_message(client, userdata, msg):
     session = SessionLocal()
 
     try:
-        payload = json.loads(msg.payload.decode())
+        # ==============================
+        # Decode JSON payload
+        # ==============================
+        try:
+            payload_raw = json.loads(msg.payload.decode())
+        except json.JSONDecodeError as e:
+            logging.error(f"Invalid JSON format: {e}")
+            return
 
         # ==============================
-        # Validate required field
+        # Extract device_id from topic
+        # Expected: fleet/{device_id}/telemetry
         # ==============================
-        if "device_id" not in payload:
-            raise KeyError("device_id")
+        topic_parts = msg.topic.strip().split("/")
 
-        device_uuid = uuid.UUID(payload["device_id"])
+        logging.info(f"Topic parts: {topic_parts}")
+
+        if len(topic_parts) != 3:
+            logging.error("Invalid topic structure")
+            return
+
+        device_str = topic_parts[1].strip()
+
+        try:
+            device_uuid = uuid.UUID(device_str)
+        except ValueError as e:
+            logging.error(f"UUID parsing error: {e}")
+            return
+
+        # ==============================
+        # Validate Payload via Pydantic
+        # ==============================
+        try:
+            validated_payload = TelemetryMQTT(**payload_raw)
+        except ValidationError as e:
+            logging.error(f"Payload validation error: {e}")
+            return
 
         # ==============================
         # Auto Device Provisioning
@@ -71,29 +99,17 @@ def on_message(client, userdata, msg):
         # ==============================
         telemetry = Telemetry(
             device_id=device_uuid,
-            latitude=payload.get("latitude"),
-            longitude=payload.get("longitude"),
-            speed=payload.get("speed"),
-            fuel_level=payload.get("fuel_level"),
-            status=payload.get("status"),
+            latitude=validated_payload.latitude,
+            longitude=validated_payload.longitude,
+            speed=validated_payload.speed,
+            fuel_level=validated_payload.fuel_level,
+            status=validated_payload.status,
         )
 
         session.add(telemetry)
         session.commit()
 
         logging.info("Telemetry inserted successfully")
-
-    except json.JSONDecodeError:
-        session.rollback()
-        logging.error("Invalid JSON format")
-
-    except ValueError:
-        session.rollback()
-        logging.error("Invalid UUID format for device_id")
-
-    except KeyError as e:
-        session.rollback()
-        logging.error(f"Missing required field: {e}")
 
     except SQLAlchemyError as e:
         session.rollback()
