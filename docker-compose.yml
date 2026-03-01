@@ -73,6 +73,29 @@ services:
       - "8000:8000"
     networks:
       - fleet-network
+  
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+        NEXT_PUBLIC_API_USERNAME: ${API_USERNAME}
+        NEXT_PUBLIC_API_PASSWORD: ${API_PASSWORD}
+    container_name: fleet-frontend
+    depends_on:
+      - api
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_API_USERNAME: ${API_USERNAME}
+      NEXT_PUBLIC_API_PASSWORD: ${API_PASSWORD}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
+    networks:
+      - fleet-network
 
 networks:
   fleet-network:

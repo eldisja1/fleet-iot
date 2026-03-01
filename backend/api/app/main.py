@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-
+from fastapi.middleware.cors import CORSMiddleware
 from app.routers import devices_router, telemetry_router
 
 
@@ -10,6 +10,13 @@ app = FastAPI(
     description="Enterprise Fleet IoT API with validation and schema enforcement"
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # nanti production kita restrict
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ==============================
 # Health Schema

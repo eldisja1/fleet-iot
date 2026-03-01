@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from uuid import UUID
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, Field, constr, conint, confloat, ConfigDict
 
@@ -16,6 +16,12 @@ class DeviceResponse(BaseModel):
     status: str
 
     model_config = ConfigDict(from_attributes=True)
+
+class DeviceListResponse(BaseModel):
+    data: List[DeviceResponse]
+    total: int
+    page: int
+    limit: int
 
 
 class DeviceCreate(BaseModel):
@@ -52,3 +58,11 @@ class TelemetryResponse(TelemetryBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+from typing import List
+
+class TelemetryListResponse(BaseModel):
+    data: List[TelemetryResponse]
+    total: int
+    page: int
+    limit: int

@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================= */
+/* EXISTING CUSTOM STYLES BELOW */
+/* ============================= */
+
+:root {
+  --bg: #0F172A;
+  --card: #1E293B;
+  --border: #334155;
+  --header: #E2E8F0;
+  --text: #F8FAFC;
+  --accent: #3B82F6;
+  --visited: #A78BFA;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Card */
+.enterprise-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Table */
+.enterprise-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.enterprise-table th,
+.enterprise-table td {
+  border: 1px solid var(--border);
+  padding: 12px 14px;
+}
+
+.enterprise-table th {
+  background-color: #111827;
+  font-weight: 600;
+  color: var(--header);
+}
+
+.enterprise-table tbody tr:hover {
+  background-color: #273549;
+}
+
+/* Device ID Link Styling */
+.device-link {
+  color: var(--accent);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.device-link:hover {
+  color: #60A5FA;
+}
+
+.device-link:visited {
+  color: var(--visited);
+}
+
+/* Status Badge */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-online {
+  background-color: #14532D;
+  color: #86EFAC;
+}
+
+.status-offline {
+  background-color: #7F1D1D;
+  color: #FCA5A5;
+}
