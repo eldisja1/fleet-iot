@@ -6,31 +6,31 @@ import math
 from datetime import datetime
 import paho.mqtt.client as mqtt
 import os
+from app_logging.logger import get_logger
 
+SERVICE_NAME = os.getenv("SERVICE_NAME", "simulator")
+logger = get_logger(SERVICE_NAME)
 
 MQTT_BROKER = os.getenv("MQTT_BROKER", "mqtt")
 MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
 MQTT_BASE_TOPIC = os.getenv("MQTT_BASE_TOPIC", "fleet")
 
-
-
 PUBLISH_INTERVAL = 5
 NUMBER_OF_DEVICES = 5
+
 
 class DeviceSimulator:
     def __init__(self, device_id):
         self.device_id = device_id
-        self.lat = -6.200000  # Jakarta
+        self.lat = -6.200000
         self.lon = 106.816666
-        self.speed = random.uniform(20, 80)  # km/h
+        self.speed = random.uniform(20, 80)
         self.fuel_level = 100.0
         self.online = True
 
     def simulate_movement(self):
-        # Simple movement calculation
-        delta = self.speed / 111000  # approx deg conversion
+        delta = self.speed / 111000
         angle = random.uniform(0, 2 * math.pi)
-
         self.lat += delta * math.cos(angle)
         self.lon += delta * math.sin(angle)
 
@@ -41,10 +41,8 @@ class DeviceSimulator:
             self.fuel_level = 0
 
     def simulate_online_status(self):
-        # 5% chance to go offline
         if random.random() < 0.05:
             self.online = False
-        # 10% chance to come back online
         elif random.random() < 0.10:
             self.online = True
 
@@ -61,14 +59,18 @@ class DeviceSimulator:
 
 
 def main():
+    logger.info("Simulator starting")
+
     client = mqtt.Client()
     client.connect(MQTT_BROKER, MQTT_PORT, 60)
     client.loop_start()
-    
+
     devices = [
         DeviceSimulator(str(uuid.uuid4()))
         for _ in range(NUMBER_OF_DEVICES)
     ]
+
+    logger.info("Devices initialized")
 
     while True:
         for device in devices:
@@ -80,9 +82,10 @@ def main():
                 payload = device.generate_payload()
                 topic = f"{MQTT_BASE_TOPIC}/{device.device_id}/telemetry"
                 client.publish(topic, json.dumps(payload))
-                print(f"Published: {payload}")
+                logger.info(f"Telemetry published device_id={device.device_id}")
             else:
-                print(f"Device {device.device_id} is offline")
+                logger.warning(f"Device offline device_id={device.device_id}")
+
         time.sleep(PUBLISH_INTERVAL)
 
 
