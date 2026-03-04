@@ -7,7 +7,11 @@ DATABASE_URL = os.getenv(
     "postgresql://iot_user:iot_password@postgres:5432/iot_db"
 )
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    pool_recycle=300,
+)
 
 SessionLocal = sessionmaker(
     autocommit=False,
