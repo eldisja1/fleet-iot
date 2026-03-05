@@ -1,7 +1,8 @@
 paho-mqtt==1.6.1
-sqlalchemy==2.0.25
+sqlalchemy==2.0.29
 psycopg2-binary==2.9.9
 pydantic==2.6.4
 prometheus-client==0.20.0
 python-dotenv==1.0.1
 python-json-logger==2.0.7
+

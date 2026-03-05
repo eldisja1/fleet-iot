@@ -15,6 +15,10 @@ MQTT_BROKER = os.getenv("MQTT_BROKER", "mqtt")
 MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
 MQTT_BASE_TOPIC = os.getenv("MQTT_BASE_TOPIC", "fleet")
 
+MQTT_USERNAME = os.getenv("MQTT_USERNAME")
+MQTT_PASSWORD = os.getenv("MQTT_PASSWORD")
+MQTT_TLS_ENABLED = os.getenv("MQTT_TLS_ENABLED", "false").lower() == "true"
+
 PUBLISH_INTERVAL = 5
 NUMBER_OF_DEVICES = 5
 
@@ -62,6 +66,16 @@ def main():
     logger.info("Simulator starting")
 
     client = mqtt.Client()
+
+    if MQTT_USERNAME and MQTT_PASSWORD:
+        client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
+
+    if MQTT_TLS_ENABLED:
+        client.tls_set(
+            ca_certs="/app/certs/server.crt"
+        )
+        client.tls_insecure_set(True)
+
     client.connect(MQTT_BROKER, MQTT_PORT, 60)
     client.loop_start()
 
@@ -87,7 +101,6 @@ def main():
                 logger.warning(f"Device offline device_id={device.device_id}")
 
         time.sleep(PUBLISH_INTERVAL)
-
 
 if __name__ == "__main__":
     main()

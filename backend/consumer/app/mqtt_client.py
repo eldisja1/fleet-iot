@@ -6,7 +6,14 @@ import paho.mqtt.client as mqtt
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 from pydantic import ValidationError
 
-from .config import MQTT_BROKER, MQTT_PORT, MQTT_SUBSCRIBE_TOPIC
+from .config import (
+    MQTT_BROKER,
+    MQTT_PORT,
+    MQTT_SUBSCRIBE_TOPIC,
+    MQTT_USERNAME,
+    MQTT_PASSWORD,
+    MQTT_TLS_ENABLED,
+)
 from .database import SessionLocal
 from .models import Telemetry, Device
 from .schemas import TelemetryMQTT
@@ -106,6 +113,15 @@ def on_message(client, userdata, msg):
 
 def start_mqtt():
     client = mqtt.Client()
+
+    client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
+
+    if MQTT_TLS_ENABLED:
+        client.tls_set(
+            ca_certs="/app/certs/server.crt"
+        )
+        client.tls_insecure_set(True)
+
 
     client.on_connect = on_connect
     client.on_message = on_message

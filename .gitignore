@@ -31,6 +31,10 @@ docker-compose.override.yml
 mosquitto/data/
 mosquitto/log/
 
+# MQTT Security (SENSITIVE)
+mosquitto/config/passwordfile
+mosquitto/certs/
+
 #################################################
 # POSTGRES
 #################################################
