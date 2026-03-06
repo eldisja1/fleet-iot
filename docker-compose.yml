@@ -21,20 +21,26 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - fleet-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
   consumer:
     build: ./backend/consumer
     container_name: fleet-consumer
     depends_on:
-      - postgres
-      - mqtt
+      postgres:
+        condition: service_healthy
+      mqtt:
+        condition: service_started
     environment:
       MQTT_BROKER: mqtt
       MQTT_PORT: 8883
@@ -42,12 +48,12 @@ services:
       MQTT_USERNAME: ${MQTT_USERNAME}
       MQTT_PASSWORD: ${MQTT_PASSWORD}
       MQTT_TLS_ENABLED: "true"
-
       DB_HOST: postgres
-      DB_PORT: ${POSTGRES_PORT}
+      DB_PORT: 5432
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_SSL_MODE: disable
     networks:
       - fleet-network
     volumes:
@@ -58,7 +64,8 @@ services:
     build: ./simulator
     container_name: fleet-simulator
     depends_on:
-      - mqtt
+      mqtt:
+        condition: service_started
     environment:
       MQTT_BROKER: mqtt
       MQTT_PORT: 8883
@@ -76,9 +83,10 @@ services:
     build: ./backend/api
     container_name: fleet-api
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
       API_USERNAME: ${API_USERNAME}
       API_PASSWORD: ${API_PASSWORD}
     ports:
@@ -96,7 +104,7 @@ services:
       timeout: 5s
       retries: 3
     restart: unless-stopped
-  
+
   frontend:
     build:
       context: ./frontend
@@ -106,7 +114,8 @@ services:
         NEXT_PUBLIC_API_PASSWORD: ${API_PASSWORD}
     container_name: fleet-frontend
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000
       NEXT_PUBLIC_API_USERNAME: ${API_USERNAME}
@@ -119,7 +128,7 @@ services:
     command: npm run dev
     networks:
       - fleet-network
-  
+
   prometheus:
     image: prom/prometheus
     container_name: fleet-prometheus

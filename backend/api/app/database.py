@@ -4,13 +4,14 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://iot_user:iot_password@postgres:5432/iot_db"
+    "postgresql://fleetuser:fleetpass@postgres:5432/fleetdb?sslmode=disable"
 )
 
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
     pool_recycle=300,
+    connect_args={}
 )
 
 SessionLocal = sessionmaker(
