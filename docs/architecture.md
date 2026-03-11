@@ -1,161 +1,225 @@
-# System Architecture – Fleet IoT Enterprise Simulation
+# Fleet IoT Enterprise Architecture
 
-## 1. Document Purpose
-This document describes the final system architecture of the **Fleet IoT Enterprise Simulation** project.
-The architecture is designed to demonstrate IoT system design, service separation, and private network (APN-like) simulation using containerized services.
+## Overview
 
-This document serves as a **final architectural reference** for implementation.
+Fleet IoT Enterprise is a containerized telemetry ingestion platform designed to simulate and manage fleet vehicle data using MQTT messaging and a PostgreSQL database.
 
----
+The platform demonstrates a production-style IoT backend architecture using containerized microservices. Each component runs independently and communicates through an internal Docker network.
 
-## 2. Design Principles
-- Simple yet enterprise-oriented design
-- Single responsibility for each service
-- Easy to explain during technical interviews
-- Cloud-agnostic architecture
-- Focus on architecture and data flow rather than UI or production optimizations
+The system is designed to illustrate a realistic telemetry ingestion pipeline used in fleet management platforms.
 
----
+Core components include:
 
-## 3. System Components
-
-### 3.1 Device Simulator
-**Location:** `simulator/`
-
-**Role:**
-Simulates multiple IoT devices sending telemetry data.
-
-**Characteristics:**
-- Implemented in Python
-- Publishes JSON-formatted telemetry data
-- Communicates exclusively via MQTT
-- No access to HTTP APIs or databases
+- MQTT Broker
+- MQTT Consumer Service
+- FastAPI Backend API
+- PostgreSQL Database
+- Device Simulator
 
 ---
 
-### 3.2 MQTT Broker
+## Architecture
+The Fleet IoT Enterprise platform implements a telemetry ingestion pipeline designed to simulate and process vehicle telemetry data in a scalable and modular architecture.
 
-**Role:**
-Acts as the central message broker between devices and backend services.
+![Architecture-fleet-iot-enterprise](/docs/images/Architecture-fleet-iot-enterprise.png)
 
-**Characteristics:**
-- Uses Mosquitto
-- Runs as a containerized service
-- Accessible only within the internal network
+## Telemetry Data Flow
 
-**Topic Structure:**
-```
-fleet/{device_id}/telemetry
-```
+The following steps describe how telemetry data flows through the system:
 
-The MQTT Broker functions as the **entry point**, conceptually similar to an APN in cellular IoT systems.
+1. **Telemetry Generation**  
+   The Device Simulator generates telemetry data representing fleet vehicle information such as location, speed, and device identifiers. This component emulates real-world IoT devices for development and testing.
 
----
+2. **MQTT Message Publishing**  
+   The simulator publishes telemetry messages to an MQTT topic using the MQTT protocol, which is optimized for lightweight communication in IoT environments.
 
-### 3.3 Backend – MQTT Consumer Service
-**Location:** `backend/mqtt/`
+3. **MQTT Broker Reception**  
+   The MQTT Broker (Mosquitto) receives the message and distributes it to subscribed consumers, acting as a decoupling layer between devices and backend services.
 
-**Role:**
-Consumes and processes telemetry data from the MQTT Broker.
+4. **Message Validation**  
+   The system verifies that the incoming MQTT payload is valid JSON. Invalid messages are discarded and logged to prevent malformed data from entering the pipeline.
 
-**Responsibilities:**
-- Subscribe to MQTT topics
-- Validate telemetry payloads
-- Log events
-- Persist data into the database
+5. **Consumer Processing**  
+   The MQTT Consumer subscribes to the telemetry topic, retrieves the message, and parses the telemetry payload for further processing.
 
-This service does **not** expose HTTP endpoints.
+6. **Telemetry Schema Validation**  
+   The parsed data is validated against the expected telemetry schema to ensure required fields and correct data formats.
 
----
+7. **Data Transformation**  
+   Valid telemetry data is prepared or normalized to match the database schema before storage.
 
-### 3.4 Backend – API Service
-**Location:** `backend/api/`
+8. **Database Insertion**  
+   The processed telemetry record is inserted into the PostgreSQL database, which serves as the persistent storage layer.
 
-**Role:**
-Provides data access through REST APIs.
+9. **Database Error Handling**  
+   If the database insertion fails, the system logs the error to support operational monitoring and troubleshooting.
 
-**Characteristics:**
-- Built with FastAPI (Python)
-- Reads data from the database
-- Exposes endpoints such as:
-  - `/health`
-  - `/devices`
-  - `/telemetry`
+10. **Data Access via API**  
+   Once stored, the FastAPI backend retrieves telemetry records from PostgreSQL and exposes them through REST API endpoints.
 
-The API Service is the **only component optionally exposed to external clients**.
 
 ---
 
-### 3.5 Database
+## Components
 
-**Role:**
-Provides persistent storage for device and telemetry data.
+### MQTT Broker
 
-**Characteristics:**
-- Uses PostgreSQL
-- Accessible only by backend services
-- Not directly accessible by device simulators
+The MQTT broker is responsible for receiving telemetry messages from IoT devices and distributing them to subscribed services.
 
----
+Key capabilities:
 
-## 4. Network Architecture (APN Simulation)
+- MQTT protocol message handling
+- topic-based message routing
+- authentication support
+- optional TLS support
+- lightweight message distribution
 
-All services run within a single internal Docker network:
+Implementation:
 
-```
-apn_net (internal)
-```
-
-**Communication rules:**
-- Device Simulator → MQTT Broker only
-- MQTT Consumer → Database
-- API Service → Database
-- Devices have no direct access to backend services or the database
-
-This setup simulates a **private APN-like network**, isolating IoT traffic from public access.
+The platform uses the Mosquitto MQTT broker running as a containerized service.
 
 ---
 
-## 5. Data Flow
+### MQTT Consumer Service
 
-```
-[Device Simulator]
-        |
-      MQTT
-        |
-   [MQTT Broker]
-        |
-   [MQTT Consumer]
-        |
-    [Database]
-        |
-   [API Service]
-        |
-Optional Client / Dashboard
-```
+The consumer service subscribes to telemetry topics and processes incoming device messages.
 
-The dashboard or client component is **optional** and not part of the core system.
+Responsibilities:
 
----
+- subscribe to MQTT telemetry topics
+- receive and parse JSON telemetry payloads
+- validate message structure
+- transform telemetry data
+- store telemetry records in the database
+- generate structured logs for processing events
 
-## 6. Deployment Model
-- Managed using Docker Compose
-- All services run as containers
-- No dependency on a specific cloud provider
-- Fully executable in a local environment
+Technologies used:
+
+- Python
+- Paho MQTT client
+- PostgreSQL driver
+- structured logging
+
+The consumer acts as the ingestion layer between MQTT messaging and persistent storage.
 
 ---
 
-## 7. System Limitations
-- No real cellular APN implementation
-- No SIM, IMSI, or telecom-level authentication
-- No high availability or auto-scaling
-- Focused on architectural concepts rather than production hardening
+### PostgreSQL Database
+
+PostgreSQL provides persistent storage for device and telemetry data.
+
+Responsibilities:
+
+- store registered device information
+- store telemetry records
+- support efficient querying and filtering
+- maintain data integrity
+
+Typical stored data includes:
+
+- device identifiers
+- timestamped telemetry
+- geographic coordinates
+- vehicle telemetry attributes
+
+Indexes are applied to frequently queried fields to support efficient data retrieval.
 
 ---
 
-## 8. Status
+### FastAPI Backend API
 
-This architecture is considered **final**.
-Subsequent work focuses on implementation, not architectural redesign.
+The backend API exposes telemetry data through a REST interface.
 
+Capabilities include:
+
+- device listing
+- telemetry queries
+- pagination support
+- date range filtering
+- authentication-protected endpoints
+
+The API allows external systems or applications to retrieve telemetry data generated by the platform.
+
+---
+
+### Device Simulator
+
+The device simulator generates synthetic telemetry data to emulate real fleet vehicles.
+
+Features:
+
+- multiple simulated devices
+- location movement simulation
+- periodic telemetry publishing
+- configurable message intervals
+
+The simulator enables testing and demonstration of the full ingestion pipeline without requiring physical IoT devices.
+
+---
+
+## Docker Network Architecture
+
+All services run inside a shared Docker network created by Docker Compose.
+
+Services communicate internally using container hostnames.
+
+Internal service communication includes:
+
+- MQTT communication between devices and broker
+- database communication between services and PostgreSQL
+- API queries to retrieve telemetry data
+
+Internal networking ensures service isolation and simplifies container-to-container communication.
+
+External exposure is limited to the API service for controlled access.
+
+---
+
+## Telemetry Data Flow
+
+The telemetry ingestion pipeline follows these steps:
+
+1. The device simulator generates telemetry data
+2. Telemetry messages are published to an MQTT topic
+3. The MQTT broker receives the message
+4. The consumer service subscribes to the telemetry topic
+5. The consumer parses and validates the JSON payload
+6. Telemetry data is written to the PostgreSQL database
+7. The FastAPI backend exposes telemetry through REST endpoints
+
+This pipeline models a typical IoT data ingestion architecture used in fleet management platforms.
+
+---
+
+## Design Principles
+
+The platform follows several architectural principles:
+
+### Containerized Deployment
+
+Each component runs in its own container to ensure isolation and portability.
+
+### Service Separation
+
+Different responsibilities are separated into independent services:
+
+- messaging
+- data ingestion
+- storage
+- API access
+
+This approach improves maintainability and scalability.
+
+### Observability
+
+Structured logging is implemented across services to support debugging and operational monitoring.
+
+### Security Baseline
+
+The system includes basic security practices such as:
+
+- service isolation within Docker networks
+- authentication for API access
+- restricted internal communication between services
+
+Sensitive configuration values are managed through environment variables and are not included in the public repository.
