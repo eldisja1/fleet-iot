@@ -21,7 +21,7 @@ All components run as isolated containers managed by Docker Compose.
 # Architecture
 The Enterprise Fleet Tracking IoT Platform  implements a telemetry ingestion pipeline designed to simulate and process vehicle telemetry data in a scalable and modular architecture.
 
-![Architecture-Fleet-Iot](/docs/images/Architecture-fleet-iot.png)
+![Architecture-Fleet-Iot](/docs/images/Architecture-Fleet-Iot.png)
 
 ## Telemetry Data Flow
 
