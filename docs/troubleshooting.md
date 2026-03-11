@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides troubleshooting procedures for common issues encountered when deploying or operating the Fleet IoT Enterprise platform.
+This document provides troubleshooting procedures for common issues encountered when deploying or operating the Enterprise Fleet Tracking IoT Platform.
 
 The guide focuses on operational issues related to the platform components implemented in this project:
 
@@ -90,7 +90,7 @@ docker network ls
 Inspect the project network.
 
 ```
-docker network inspect fleet-iot-enterprise_default
+docker network inspect fleet-iot_default
 ```
 
 Ensure containers are attached to the same network.
@@ -307,12 +307,6 @@ The platform experiences performance degradation under high telemetry load.
 - increased processing latency
 - growing message backlog
 
-### Recommended Mitigations
-
-- optimize database indexing
-- increase consumer processing capacity
-- monitor container resource utilization
-- distribute message processing across multiple consumer instances
 
 ---
 
@@ -320,7 +314,7 @@ The platform experiences performance degradation under high telemetry load.
 
 Logs are the primary source of operational insight when troubleshooting the platform.
 
-Recommended logs to inspect:
+Logs to inspect:
 
 Consumer service:
 
@@ -345,18 +339,3 @@ Database service:
 ```
 docker-compose logs postgres
 ```
-
----
-
-# Summary
-
-Troubleshooting the Fleet IoT Enterprise platform typically involves investigating multiple layers of the system:
-
-- container infrastructure
-- internal container networking
-- MQTT messaging pipeline
-- telemetry processing service
-- database storage
-- API service
-
-Most operational issues can be diagnosed through systematic inspection of container status, service logs, and message flow between platform components.

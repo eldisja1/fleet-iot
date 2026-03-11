@@ -6,7 +6,7 @@ In real-world deployments, IoT devices commonly connect to backend platforms thr
 
 An **Access Point Name (APN)** defines the network gateway used by cellular devices to access external services such as IoT platforms, APIs, and message brokers.
 
-This document describes the general APN connectivity model used in enterprise IoT fleet systems.
+This document describes the general APN connectivity model used in  Enterprise Fleet Tracking IoT Platform.
 
 ---
 
@@ -39,6 +39,7 @@ The diagram shows a simplified connectivity flow used by cellular IoT devices wh
    The backend platform receives telemetry data through secure endpoints such as MQTT brokers or API services.
 
 This architecture enables IoT devices deployed in the field to securely transmit telemetry data to centralized platforms for processing, storage, and monitoring.
+
 ---
 
 ## Public APN
@@ -80,7 +81,6 @@ Traffic can be routed directly to the organization's infrastructure or cloud env
 - requires coordination with the telecom operator
 - additional network configuration
 
-Private APN is recommended for **production-grade enterprise IoT deployments**.
 
 ---
 
@@ -95,18 +95,3 @@ Port: 8883
 Devices should be configured to communicate with the official platform endpoints provided by the system operator.
 
 Specific connection details are managed internally and are not exposed in public documentation.
-
----
-
-## Security Best Practices
-
-To ensure secure connectivity in cellular IoT deployments:
-
-- use **TLS encryption** for all device communications
-- restrict network access to required services only
-- implement device authentication mechanisms
-- rotate credentials periodically
-- monitor network traffic for anomalies
-- apply firewall rules and network segmentation
-
-These practices help ensure secure, scalable, and reliable communication between IoT devices and the Fleet IoT platform.

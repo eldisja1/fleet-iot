@@ -2,8 +2,6 @@
 
 ## Overview
 
-This document describes the recommended firewall configuration for **Fleet IoT Enterprise** deployments.
-
 Firewall rules are used to control which network ports are accessible from external networks.  
 Only services that must be accessed by external clients should be exposed.
 
@@ -41,7 +39,7 @@ The database must only be accessible by internal application components.
 
 ---
 
-## Example Linux Firewall Configuration (UFW)
+## Linux Firewall Configuration (UFW)
 
 Allow API access:
 
@@ -62,16 +60,3 @@ Deny external database access:
 Enable firewall:
 
 `ufw enable`
-
-
----
-
-
-## Summary
-
-A secure Fleet IoT Enterprise deployment should:
-
-- expose only required service ports
-- keep internal services isolated within container networks
-- enforce strict firewall rules
-- use encrypted communication for device connectivity

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Fleet IoT Enterprise is a containerized telemetry ingestion platform designed to simulate and manage fleet vehicle data using MQTT messaging and a PostgreSQL database.
+Enterprise Fleet Tracking IoT Platform is a containerized telemetry ingestion platform designed to simulate and manage fleet vehicle data using MQTT messaging and a PostgreSQL database.
 
 The platform is deployed using **Docker Compose**, where each component runs as an independent container.  
 This approach ensures consistent environments across development and production systems.
@@ -29,11 +29,11 @@ Verify installation:
 
 Clone the project repository:
 
-    git clone https://github.com/your-repo/fleet-iot-enterprise.git
+    git clone https://github.com/your-repo/fleet-iot.git
 
 Enter the project directory:
 
-    cd fleet-iot-enterprise
+    cd fleet-iot
 
 ---
 
@@ -152,17 +152,3 @@ To rebuild and restart all services:
 
     docker compose down
     docker compose up -d --build
-
----
-
-## Production Considerations
-
-For production deployments, consider implementing the following:
-
-- Secure environment variable management
-- Reverse proxy for API access
-- TLS encryption for external connections
-- Monitoring and log aggregation
-- Regular database backups
-
-These practices help ensure reliability, security, and maintainability in production environments.

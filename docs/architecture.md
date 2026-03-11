@@ -2,7 +2,7 @@
 
 ## Overview
 
-Fleet IoT Enterprise is a containerized telemetry ingestion platform designed to simulate and manage fleet vehicle data using MQTT messaging and a PostgreSQL database.
+Enterprise Fleet Tracking IoT Platform is a containerized telemetry ingestion platform designed to simulate and manage fleet vehicle data using MQTT messaging and a PostgreSQL database.
 
 The platform demonstrates a production-style IoT backend architecture using containerized microservices. Each component runs independently and communicates through an internal Docker network.
 
@@ -19,9 +19,9 @@ Core components include:
 ---
 
 ## Architecture
-The Fleet IoT Enterprise platform implements a telemetry ingestion pipeline designed to simulate and process vehicle telemetry data in a scalable and modular architecture.
+The Enterprise Fleet Tracking IoT Platform implements a telemetry ingestion pipeline designed to simulate and process vehicle telemetry data in a scalable and modular architecture.
 
-![Architecture-fleet-iot-enterprise](/docs/images/Architecture-fleet-iot-enterprise.png)
+![Architecture-fleet-iot](/docs/images/Architecture-Fleet-Iot.png)
 
 ## Telemetry Data Flow
 

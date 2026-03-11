@@ -3,7 +3,7 @@
 
 ## Overview
 
-Fleet IoT Enterprise provides a REST API for accessing device and telemetry data.
+Fleet IoT provides a REST API for accessing device and telemetry data.
 
 The API is implemented using **FastAPI** and exposes endpoints used by internal services and authorized clients to retrieve fleet telemetry information.
 

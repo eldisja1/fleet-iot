@@ -2,7 +2,7 @@
 
 ## Overview
 
-Security in Fleet IoT Enterprise is implemented using a layered **defense-in-depth architecture**.  
+Security in Enterprise Fleet Tracking IoT Platform is implemented using a layered **defense-in-depth architecture**.  
 Multiple security controls are applied across messaging infrastructure, API access, database systems, and container networking.
 
 The goal of this architecture is to:
@@ -18,7 +18,7 @@ Security controls follow the principles of **least privilege**, **network isolat
 
 # Security Layers
 
-Fleet IoT Enterprise implements security controls across four primary layers:
+Enterprise Fleet Tracking IoT Platform implements security controls across four primary layers:
 
 1. MQTT messaging security  
 2. API access control  
@@ -69,7 +69,7 @@ mosquitto_passwd -c passwordfile <username>
 
 Credentials are stored in a password file used by the MQTT broker.
 
-## TLS Encryption (Recommended for Production)
+## TLS Encryption
 
 In production deployments, MQTT communication should use TLS encryption.
 
@@ -179,7 +179,7 @@ ON telemetry (device_id, created_at DESC);
 
 Efficient queries help maintain system performance under load.
 
-## 5. SSL Encryption (Recommended for Production)
+## 5. SSL Encryption 
 
 For production deployments, database connections should enforce encrypted communication.
 
@@ -195,7 +195,7 @@ This ensures secure communication between application services and the database.
 
 # Docker Network Isolation
 
-Fleet IoT Enterprise uses a dedicated **internal Docker network** to isolate service communication.
+Enterprise Fleet Tracking IoT Platform uses a dedicated **internal Docker network** to isolate service communication.
 
 Containers communicate with each other using internal service hostnames.
 
